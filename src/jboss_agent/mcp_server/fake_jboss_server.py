@@ -12,6 +12,7 @@ from mcp.server.fastmcp import FastMCP
 from jboss_agent.config import get_settings
 from jboss_agent.jboss.fake_operations import FakeJBossOperations
 
+
 mcp = FastMCP("Fake JBoss Capability API")
 
 

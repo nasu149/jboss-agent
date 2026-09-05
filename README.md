@@ -1,8 +1,8 @@
-# LangGraph JBoss Incident Response Agent — STEP 0〜9 実装版
+# LangGraph JBoss Incident Response Agent — STEP 0〜12 実装版
 
 このリポジトリは、LangGraph を「実際に動く題材」で学ぶためのスターターパックです。
 
-**現在は `LEARNING_ROADMAP.md` の STEP 0〜9 まで実装済みです。** 各 STEP の学習用 Graph を残しているため、段階ごとの差分を比較できます。
+**現在は `LEARNING_ROADMAP.md` の STEP 0〜12 まで実装済みです。** 各 STEP の学習用 Graph を残しているため、段階ごとの差分を比較できます。
 
 目的は JBoss EAP の運用自動化製品を完成させることではなく、次の要素を一つの題材で体系的に学ぶことです。
 
@@ -451,7 +451,7 @@ get_deployment_status
 get_recent_config_changes
 ```
 
-`execute_jboss_cli` / `execute_shell` のような任意実行 Tool は STEP 9 時点でも作っていません。
+`execute_jboss_cli` / `execute_shell` のような任意実行 Tool は STEP 12 時点でも作っていません。
 
 詳しい比較は:
 
@@ -626,4 +626,170 @@ make step8
 make step9
 ```
 
-この時点で Incident Response 側は、**自律調査 / HITL / write capability / 復旧ループ**まで揃っています。次の STEP 10 は Graph の外から定期起動する Scheduler です。
+この時点で Incident Response 側は、**自律調査 / HITL / write capability / 復旧ループ**まで揃っています。STEP 10 以降でこれを Scheduler / UI / Evaluation に接続します。
+
+
+---
+
+## STEP 10 — Scheduler（実装済み）
+
+APScheduler を **LangGraph の外**に置き、`POLL_INTERVAL_SECONDS` ごとに運用版 Monitoring Graph を起動します。
+
+```text
+APScheduler
+  -> OperationalAgentService
+  -> Monitoring Graph
+       -> read_server_log MCP
+       -> Gemini classification
+       -> incidentならLocal Teams Tool
+  -> Incident Graph
+       -> pending approvalならinterruptのまま停止
+```
+
+Monitoring の `thread_id` はサーバ単位で固定です。
+
+```text
+monitor:jboss-01
+```
+
+運用版では SQLite Checkpointer を必ず使用し、`previous_log_cursor` をプロセス再起動後も復元します。
+
+1回だけ:
+
+```bash
+make step10-once
+```
+
+Scheduler継続起動:
+
+```bash
+make step10
+```
+
+デモ時は `.env` の `POLL_INTERVAL_SECONDS=10` 等にすると確認しやすいです。
+
+---
+
+## STEP 11 — Streamlit UI（実装済み）
+
+```bash
+make step11
+```
+
+表示・操作:
+
+- Server status
+- Polling status / last scan / next scan
+- Agent activity timeline
+- `Inject Random Event`
+- `Run scan now`
+- pending `interrupt()` approval
+- Approve / Reject / Edit & Approve
+- Incident一覧
+- workflow完了後の Ground Truth comparison
+
+おすすめのデモ方法:
+
+Terminal 1:
+
+```bash
+make step10
+```
+
+Terminal 2:
+
+```bash
+make step11
+```
+
+UIで:
+
+```text
+Inject Random Event
+ -> Scheduler待ち（またはRun scan now）
+ -> Agentがread-only MCP Toolで調査
+ -> Approval UI
+ -> Approve
+ -> write MCP Tool
+ -> recovery verification
+ -> Ground Truth comparison
+```
+
+Ground Truth は `.data/simulator.sqlite` に分離され、Agent State / Prompt へ入りません。
+
+---
+
+## STEP 12 — Evaluation（実装済み）
+
+10〜30回のイベントを実際の Monitoring / Incident Graph に流して評価します。
+
+```bash
+make step12
+```
+
+評価は同じ Fake JBoss を繰り返しresetするため、**`make step10` のSchedulerを停止してから**実行してください。
+
+回数変更:
+
+```bash
+make step12 EVAL_RUNS=20 EVAL_SEED=123
+```
+
+指標:
+
+- Incident detection accuracy
+- False Positive count
+- False Negative count
+- Diagnosis accuracy
+- Recovery success rate
+- Human rejection count
+- Average investigation read MCP Tool calls
+
+評価時は条件を揃えるためwrite承認を自動Approveしますが、通常UIでは人の承認が必要です。
+また、10〜30件の試験でTeamsを大量送信しないよう、Evaluation Runner は専用dry-run notifierを注入します。
+
+結果は:
+
+```text
+.data/evaluation_latest.json
+```
+
+へ保存され、Streamlitにも最新summaryを表示します。
+
+詳しい設計・State変化・責務分離:
+
+```text
+docs/STEP10_STEP11_STEP12_GUIDE.md
+```
+
+---
+
+## STEP 0〜12 完成後の構成
+
+```text
+Scheduler
+   ↓
+Monitoring Graph  -- fixed thread_id / durable cursor
+   ↓ incident
+Local Teams Tool
+   ↓
+Incident Response Graph
+   ↓
+Gemini ↔ read-only MCP Tools
+   ↓
+Risk Policy
+   ↓
+interrupt() ← Streamlit Human approval
+   ↓
+validated write MCP Tool
+   ↓
+Recovery Loop
+
+Fault Injector ──────> Fake JBoss
+Ground Truth Store   （Agentから隔離）
+
+Evaluation Runner
+   └─ 10〜30 trials → metrics
+```
+
+STEP 13 の Real JBoss Adapter は Optional です。

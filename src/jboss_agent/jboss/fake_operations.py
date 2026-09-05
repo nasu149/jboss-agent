@@ -13,6 +13,7 @@ from pathlib import Path
 from threading import RLock
 from typing import Any
 
+
 _DEFAULT_STATE: dict[str, Any] = {
     "server_id": "jboss-01",
     "health": {
@@ -135,10 +136,7 @@ class FakeJBossOperations:
 
     def get_recent_config_changes(self, server_id: str) -> dict[str, object]:
         self._validate_server_id(server_id)
-        return {
-            "server_id": server_id,
-            "changes": list(self._read_state()["recent_config_changes"]),
-        }
+        return {"server_id": server_id, "changes": list(self._read_state()["recent_config_changes"])}
 
     # ------------------------------------------------------------------
     # Validated write capabilities (STEP 8)
@@ -172,9 +170,7 @@ class FakeJBossOperations:
 
         if changed:
             self.append_log_lines(
-                [
-                    f"{self._now()} INFO  [org.jboss.as] thread-pool max_threads changed {old} -> {value}"
-                ]
+                [f"{self._now()} INFO  [org.jboss.as] thread-pool max_threads changed {old} -> {value}"]
             )
         return {
             "server_id": server_id,
@@ -206,9 +202,7 @@ class FakeJBossOperations:
 
         if changed:
             self.append_log_lines(
-                [
-                    f"{self._now()} INFO  [org.jboss.as] datasource max_pool_size changed {old} -> {value}"
-                ]
+                [f"{self._now()} INFO  [org.jboss.as] datasource max_pool_size changed {old} -> {value}"]
             )
         return {
             "server_id": server_id,
@@ -238,9 +232,7 @@ class FakeJBossOperations:
 
         if not was_healthy:
             self.append_log_lines(
-                [
-                    f"{self._now()} INFO  [org.jboss.as] deployment {deployment_name} restarted successfully"
-                ]
+                [f"{self._now()} INFO  [org.jboss.as] deployment {deployment_name} restarted successfully"]
             )
         return {
             "server_id": server_id,

@@ -1,4 +1,4 @@
-.PHONY: install test lint typecheck check gemini-ping step1 step2 step3 step4 step5 step6 step7 step8 step9 step7-pause step7-resume mcp-dev app
+.PHONY: install test lint typecheck check gemini-ping step1 step2 step3 step4 step5 step6 step7 step8 step9 step10 step10-once step11 step12 step7-pause step7-resume mcp-dev app
 
 install:
 	pip install -e '.[dev]'
@@ -44,6 +44,20 @@ step8:
 
 step9:
 	python -m jboss_agent.cli.step9
+
+step10:
+	python -m jboss_agent.cli.step10
+
+step10-once:
+	python -m jboss_agent.cli.step10 --once
+
+# STEP 11 is the operational Streamlit UI.
+step11: app
+
+EVAL_RUNS ?= 12
+EVAL_SEED ?= 42
+step12:
+	python -m jboss_agent.cli.step12 --runs $(EVAL_RUNS) --seed $(EVAL_SEED)
 
 STEP7_THREAD_ID ?= incident:step7-durable-demo
 step7-pause:

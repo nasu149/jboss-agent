@@ -10,6 +10,8 @@ initial logs and tool evidence. The recommended_action must be one of the schema
 options. If evidence does not justify a safe action, use type=NONE. For a recent
 configuration regression, prefer restoring the clearly observed previous value.
 Do not fabricate current_value, proposed_value, or deployment_name.
+Set root_cause to exactly one of these stable evaluation codes when supported:
+THREAD_POOL_CONFIGURATION, DATASOURCE_POOL_EXHAUSTION, DEPLOYMENT_FAILURE, UNKNOWN.
 """
 
 

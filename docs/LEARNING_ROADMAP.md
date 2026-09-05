@@ -208,7 +208,7 @@ Not recovered -> investigation
 
 ---
 
-## STEP 10 — Scheduler
+## STEP 10 — Scheduler（実装済み）
 
 ### 作るもの
 
@@ -221,7 +221,7 @@ APScheduler から 180 秒ごとに Monitoring Graph を起動。
 
 ---
 
-## STEP 11 — Streamlit UI
+## STEP 11 — Streamlit UI（実装済み）
 
 ### 作るもの
 
@@ -239,7 +239,7 @@ APScheduler から 180 秒ごとに Monitoring Graph を起動。
 
 ---
 
-## STEP 12 — Evaluation
+## STEP 12 — Evaluation（実装済み）
 
 ### 作るもの
 

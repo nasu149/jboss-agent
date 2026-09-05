@@ -1,8 +1,4 @@
-"""Application configuration loaded from environment variables and ``.env``.
-
-STEP 0 keeps configuration independent from LangGraph so every later graph can
-reuse the same validated settings object.
-"""
+"""Application configuration loaded from environment variables and ``.env``."""
 
 from __future__ import annotations
 
@@ -15,12 +11,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Validated application settings.
+    """Validated settings shared by every learning step.
 
-    Environment variable names intentionally match ``.env.example``. Empty
-    secret values are accepted at startup so tests and the Streamlit hello page
-    can run without external credentials. Gemini access validates the key at the
-    point where a client is created.
+    STEP 10-12 add durable operational paths. The earlier STEP 7 demos may still
+    choose an in-memory checkpointer, but the scheduler/UI operational runtime
+    deliberately uses SQLite so monitor cursors and pending approvals survive
+    process restarts.
     """
 
     model_config = SettingsConfigDict(
@@ -32,18 +28,12 @@ class Settings(BaseSettings):
 
     google_api_key: SecretStr | None = Field(default=None, alias="GOOGLE_API_KEY")
     gemini_model: str = Field(default="gemini-3.5-flash", alias="GEMINI_MODEL")
-    gemini_temperature: float = Field(
-        default=1.0,
-        ge=0.0,
-        le=2.0,
-        alias="GEMINI_TEMPERATURE",
-    )
+    gemini_temperature: float = Field(default=1.0, ge=0.0, le=2.0, alias="GEMINI_TEMPERATURE")
 
     teams_webhook_url: str | None = Field(default=None, alias="TEAMS_WEBHOOK_URL")
     teams_dry_run: bool = Field(default=True, alias="TEAMS_DRY_RUN")
     teams_notify_min_severity: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = Field(
-        default="MEDIUM",
-        alias="TEAMS_NOTIFY_MIN_SEVERITY",
+        default="MEDIUM", alias="TEAMS_NOTIFY_MIN_SEVERITY"
     )
 
     poll_interval_seconds: int = Field(default=180, ge=1, alias="POLL_INTERVAL_SECONDS")
@@ -53,27 +43,22 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     jboss_mode: Literal["fake", "real"] = Field(default="fake", alias="JBOSS_MODE")
     jboss_mcp_transport: str = Field(default="stdio", alias="JBOSS_MCP_TRANSPORT")
-    fake_jboss_data_dir: str = Field(
-        default=".data/fake_jboss",
-        alias="FAKE_JBOSS_DATA_DIR",
+    fake_jboss_data_dir: str = Field(default=".data/fake_jboss", alias="FAKE_JBOSS_DATA_DIR")
+
+    checkpoint_backend: Literal["memory", "sqlite"] = Field(
+        default="memory", alias="CHECKPOINT_BACKEND"
+    )
+    checkpoint_db_path: str = Field(default=".data/checkpoints.sqlite", alias="CHECKPOINT_DB_PATH")
+    runtime_db_path: str = Field(default=".data/runtime.sqlite", alias="RUNTIME_DB_PATH")
+    simulator_db_path: str = Field(default=".data/simulator.sqlite", alias="SIMULATOR_DB_PATH")
+    evaluation_report_path: str = Field(
+        default=".data/evaluation_latest.json", alias="EVALUATION_REPORT_PATH"
     )
 
-    checkpoint_backend: Literal["memory", "sqlite"] = Field(default="memory", alias="CHECKPOINT_BACKEND")
-    checkpoint_db_path: str = Field(
-        default=".data/checkpoints.sqlite",
-        alias="CHECKPOINT_DB_PATH",
-    )
-
-    max_investigation_rounds: int = Field(
-        default=5,
-        ge=1,
-        alias="MAX_INVESTIGATION_ROUNDS",
-    )
-    max_recovery_attempts: int = Field(
-        default=2,
-        ge=1,
-        alias="MAX_RECOVERY_ATTEMPTS",
-    )
+    max_investigation_rounds: int = Field(default=5, ge=1, alias="MAX_INVESTIGATION_ROUNDS")
+    max_recovery_attempts: int = Field(default=2, ge=1, alias="MAX_RECOVERY_ATTEMPTS")
+    evaluation_runs: int = Field(default=12, ge=10, le=30, alias="EVALUATION_RUNS")
+    evaluation_seed: int = Field(default=42, alias="EVALUATION_SEED")
 
     @field_validator("google_api_key", mode="before")
     @classmethod
@@ -96,6 +81,10 @@ class Settings(BaseSettings):
         "log_level",
         "jboss_mcp_transport",
         "fake_jboss_data_dir",
+        "checkpoint_db_path",
+        "runtime_db_path",
+        "simulator_db_path",
+        "evaluation_report_path",
     )
     @classmethod
     def non_blank_text(cls, value: str) -> str:
@@ -106,15 +95,14 @@ class Settings(BaseSettings):
 
     @property
     def has_google_api_key(self) -> bool:
-        """Return whether Gemini credentials are configured."""
+        return self.google_api_key is not None and bool(self.google_api_key.get_secret_value().strip())
 
-        return self.google_api_key is not None and bool(
-            self.google_api_key.get_secret_value().strip()
-        )
+    @property
+    def monitoring_thread_id(self) -> str:
+        """Stable thread used by STEP 10 scheduler cursor persistence."""
+        return f"monitor:{self.server_id}"
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Return one cached settings object for the current process."""
-
     return Settings()

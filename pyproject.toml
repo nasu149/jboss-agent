@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langgraph-jboss-agent"
-version = "0.1.0"
+version = "0.2.0"
 description = "Learning project for LangGraph, MCP, HITL, and JBoss incident response"
 requires-python = ">=3.12,<3.14"
 dependencies = [
@@ -35,6 +35,8 @@ jboss-agent-step6 = "jboss_agent.cli.step6:main"
 jboss-agent-step7 = "jboss_agent.cli.step7:main"
 jboss-agent-step8 = "jboss_agent.cli.step8:main"
 jboss-agent-step9 = "jboss_agent.cli.step9:main"
+jboss-agent-step10 = "jboss_agent.cli.step10:main"
+jboss-agent-step12 = "jboss_agent.cli.step12:main"
 jboss-agent-fake-mcp = "jboss_agent.mcp_server.fake_jboss_server:main"
 
 [project.optional-dependencies]

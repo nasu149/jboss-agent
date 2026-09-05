@@ -12,3 +12,5 @@
 - MCP Python SDK v2 notes: https://github.com/modelcontextprotocol/python-sdk/blob/main/docs/whats-new.md
 - langchain-mcp-adapters PyPI: https://pypi.org/project/langchain-mcp-adapters/
 - LangGraph SQLite Checkpointer: https://reference.langchain.com/python/langgraph/checkpoint/sqlite
+- APScheduler 3.x User Guide: https://apscheduler.readthedocs.io/en/3.x/userguide.html
+- Streamlit execution flow / rerun: https://docs.streamlit.io/develop/api-reference/execution-flow/st.rerun

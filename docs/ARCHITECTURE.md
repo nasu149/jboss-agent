@@ -74,10 +74,19 @@ src/jboss_agent/
 │
 ├── simulator/
 │   ├── fault_injector.py
+│   ├── ground_truth.py
 │   └── scenarios.py
+│
+├── runtime/
+│   ├── service.py
+│   └── store.py
 │
 ├── scheduler/
 │   └── monitor_scheduler.py
+│
+├── evaluation/
+│   ├── metrics.py
+│   └── runner.py
 │
 └── ui/
     └── streamlit_app.py
@@ -232,3 +241,24 @@ Fake JBoss は「テストデータ」ではなく、状態を持つ小さなシ
 Fault Injector がこの状態とログを変更する。
 
 Agent は Ground Truth を参照できない。
+
+
+## 10. STEP 10〜12 operational boundary
+
+最終デモでは保存先を3つに分離する。
+
+```text
+LangGraph Checkpointer
+  Graph State / cursor / pending interrupt
+
+Runtime SQLite
+  Dashboard用のscan/incident/activity metadata
+
+Simulator Ground Truth SQLite
+  Agentから隔離した正解ラベル
+```
+
+Scheduler と Streamlit は同じ `OperationalAgentService` を呼ぶ。
+Scheduler/UI内に診断・Risk Policy・write Tool選択ロジックを重複実装しない。
+
+Evaluation は実Graphを10〜30回実行するが、評価中のTeams実送信だけは dependency injection したdry-run notifierで無効化する。

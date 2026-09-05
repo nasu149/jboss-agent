@@ -1,4 +1,4 @@
-"""LangGraph State definitions through STEP 9."""
+"""LangGraph State definitions through STEP 12."""
 
 from __future__ import annotations
 
@@ -42,6 +42,18 @@ class TeamsNotificationState(CursorMonitoringState, total=False):
     teams_notified: bool
     teams_tool_status: str
     teams_tool_result: dict[str, Any]
+
+
+class OperationalMonitoringState(CursorMonitoringState, total=False):
+    """Durable monitoring state introduced in STEP 10."""
+
+    scan_from_cursor: int
+    cursor_reset_detected: bool
+    severity: str
+    incident_id: str | None
+    teams_notified: bool
+    teams_tool_status: str | None
+    teams_tool_result: dict[str, Any] | None
 
 
 class MCPDemoState(TypedDict, total=False):
