@@ -1,6 +1,6 @@
-"""STEP 0 Streamlit hello page.
+"""Small status page through STEP 2.
 
-The operational dashboard is intentionally deferred until STEP 11.
+The operational dashboard remains intentionally deferred until STEP 11.
 """
 
 from __future__ import annotations
@@ -14,13 +14,21 @@ settings = get_settings()
 
 st.set_page_config(page_title="LangGraph JBoss Agent", page_icon="🧭", layout="centered")
 st.title("LangGraph JBoss Incident Response Agent")
-st.subheader("STEP 0 — Environment")
-st.success("Streamlit is running inside the development environment.")
+st.subheader("STEP 0–2 — Environment / Core / LLM Routing")
+st.success("Environment ready. STEP 1 and STEP 2 graphs are implemented.")
 
 st.markdown(
     """
-This page is intentionally small. LangGraph state, nodes, edges, tools, MCP,
-and human approval are introduced in later steps.
+The operational dashboard is intentionally deferred until STEP 11.
+For now, run the learning graphs from the terminal:
+
+```bash
+make step1
+make step2
+make step2 SCENARIO=normal
+```
+
+See `docs/STEP1_STEP2_GUIDE.md` for the State / Node / Edge comparison.
 """
 )
 

@@ -6,7 +6,7 @@
 
 ---
 
-## STEP 0 — Environment
+## STEP 0 — Environment（実装済み）
 
 ### 作るもの
 
@@ -29,7 +29,7 @@
 
 ---
 
-## STEP 1 — LangGraph Core
+## STEP 1 — LangGraph Core（実装済み）
 
 ### 作るもの
 
@@ -57,7 +57,7 @@ START -> collect_fake_log -> simple_check -> END
 
 ---
 
-## STEP 2 — LLM Routing
+## STEP 2 — LLM Routing（実装済み）
 
 ### 作るもの
 

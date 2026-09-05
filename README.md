@@ -247,3 +247,109 @@ VS Code が転送した `8501` ポートをブラウザで開いてください�
 - JBoss simulator
 
 これらは `docs/LEARNING_ROADMAP.md` の順に STEP 1 以降で追加します。
+
+---
+
+## STEP 1 — LangGraph Core（実装済み）
+
+最小の Graph API を実装しています。
+
+```text
+START -> collect_fake_log -> simple_check -> END
+```
+
+実行:
+
+```bash
+make step1
+```
+
+主なファイル:
+
+```text
+src/jboss_agent/graph/state.py
+src/jboss_agent/graph/core_graph.py
+src/jboss_agent/graph/nodes/collect_fake_log.py
+src/jboss_agent/graph/nodes/simple_check.py
+```
+
+ここでは LLM を使いません。State / Node / Edge / `compile()` / `invoke()` の動きだけを確認できます。
+
+---
+
+## STEP 2 — LLM Routing（実装済み）
+
+STEP 1 の固定 Edge と比較するため、Gemini の Structured Output と Conditional Edge を使う Graph を別に残しています。
+
+```text
+START
+  -> collect_fake_log
+  -> analyze_logs
+  -> Conditional Edge
+       NORMAL          -> normal_branch
+       THREAD_POOL     -> thread_pool_branch
+       DATASOURCE_POOL -> datasource_pool_branch
+       DEPLOYMENT      -> deployment_branch
+       UNKNOWN         -> unknown_branch
+  -> END
+```
+
+Gemini からは自由文ではなく、Pydantic の `LogClassification` に対応する JSON Schema で以下を受け取ります。
+
+```text
+incident_detected
+category
+confidence
+summary
+evidence
+```
+
+実行:
+
+```bash
+make step2
+```
+
+デフォルトは thread pool らしい raw log を入力します。
+
+```bash
+make step2 SCENARIO=normal
+make step2 SCENARIO=thread_pool
+make step2 SCENARIO=datasource_pool
+make step2 SCENARIO=deployment
+make step2 SCENARIO=unknown
+```
+
+`SCENARIO` は CLI が raw log sample を選ぶためだけに使用し、Graph State や Gemini prompt に正解ラベルは渡しません。
+
+詳しい学習ポイントは:
+
+```text
+docs/STEP1_STEP2_GUIDE.md
+```
+
+を参照してください。
+
+### STEP 2 の責務分担
+
+```text
+Gemini
+  ログの意味を解釈して category を決める
+
+LangGraph
+  State を運び、Node と Conditional Edge を実行する
+
+通常の Python
+  category -> 次 Node の対応表を保証する
+```
+
+Tool / ToolNode / MCP はまだありません。これらは STEP 4 以降で追加します。
+
+### STEP 1 / 2 テスト
+
+```bash
+make test
+```
+
+STEP 2 の Graph test は FakeClassifier を dependency injection し、Gemini API を呼びません。
+これにより Graph のルーティングテストと LLM の実通信を分離しています。
