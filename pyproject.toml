@@ -21,6 +21,9 @@ dependencies = [
   "apscheduler>=3.11,<4",
 ]
 
+[project.scripts]
+jboss-agent-gemini-ping = "jboss_agent.cli.gemini_ping:main"
+
 [project.optional-dependencies]
 dev = [
   "pytest>=8",

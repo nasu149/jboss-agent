@@ -1,0 +1,17 @@
+langgraph<2,>=1.1.5
+langchain<2,>=1
+langchain-google-genai<5,>=4
+langchain-mcp-adapters
+mcp[cli]
+streamlit>=1.45
+httpx>=0.28
+pydantic>=2.10
+pydantic-settings>=2.7
+python-dotenv>=1.0
+apscheduler<4,>=3.11
+
+[dev]
+pytest>=8
+pytest-asyncio>=0.25
+ruff>=0.11
+mypy>=1.15

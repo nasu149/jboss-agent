@@ -143,7 +143,7 @@ LangChain の `ChatGoogleGenerativeAI` を利用します。
 
 いきなり全部実装しないでください。
 
-最初は `LEARNING_ROADMAP.md` の STEP 1 から始め、各 STEP で:
+最初は `LEARNING_ROADMAP.md` の STEP 0 から始め、各 STEP で:
 
 - 何を学ぶか
 - なぜその設計なのか
@@ -151,3 +151,99 @@ LangChain の `ChatGoogleGenerativeAI` を利用します。
 - 何を通常の Python に任せるか
 
 を説明しながら実装してください。
+
+---
+
+## STEP 0 — Environment（実装済み）
+
+STEP 0 では LangGraph の Graph 本体はまだ作っていません。まず、後続 STEP が同じ環境・同じ設定方式で動くための土台だけを実装しています。
+
+### 追加されたもの
+
+- `src/jboss_agent/config.py`
+  - `.env` / 環境変数を `pydantic-settings` で読み込み
+  - 型・範囲を検証
+  - Secret をコードに直書きしない
+- `src/jboss_agent/llm/gemini.py`
+  - `ChatGoogleGenerativeAI` の生成
+  - Gemini への1回の疎通確認
+- `src/jboss_agent/cli/gemini_ping.py`
+  - CLI から疎通確認
+- `src/jboss_agent/ui/streamlit_app.py`
+  - STEP 0 用 Hello World 画面
+- 設定・Gemini helper・Streamlit entrypoint の基本テスト
+
+### 開始手順
+
+1. `.env.example` を `.env` にコピーします。
+
+```bash
+cp .env.example .env
+```
+
+Windows PowerShell の場合:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+2. `.env` の `GOOGLE_API_KEY` に Google AI Studio の API key を設定します。
+
+```env
+GOOGLE_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-3.5-flash
+```
+
+3. VS Code でこのフォルダを開き、次を実行します。
+
+```text
+Dev Containers: Reopen in Container
+```
+
+4. コンテナ内で確認します。
+
+```bash
+python --version
+python -c "import langgraph; print('langgraph ok')"
+python -c "import streamlit; print('streamlit ok')"
+```
+
+5. テストを実行します。
+
+```bash
+make test
+```
+
+6. Gemini に1回問い合わせます。
+
+```bash
+make gemini-ping
+```
+
+成功例:
+
+```text
+model=gemini-3.5-flash
+response=GEMINI_CONNECTION_OK
+```
+
+7. Streamlit を起動します。
+
+```bash
+make app
+```
+
+VS Code が転送した `8501` ポートをブラウザで開いてください。
+
+### STEP 0 でまだ作らないもの
+
+- LangGraph State
+- Node / Edge
+- Conditional Edge
+- Tool / ToolNode
+- MCP Server / Client
+- Human-in-the-loop
+- Scheduler
+- JBoss simulator
+
+これらは `docs/LEARNING_ROADMAP.md` の順に STEP 1 以降で追加します。

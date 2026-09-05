@@ -1,0 +1,2 @@
+[console_scripts]
+jboss-agent-gemini-ping = jboss_agent.cli.gemini_ping:main

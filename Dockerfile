@@ -10,13 +10,16 @@ RUN apt-get update \
 
 WORKDIR /workspace
 
-COPY pyproject.toml /tmp/pyproject.toml
-COPY src/jboss_agent/__init__.py /tmp/src/jboss_agent/__init__.py
-
-RUN cd /tmp \
+# Install Python dependencies during image build so the Dev Container opens with
+# LangGraph / Gemini / Streamlit already available. .env is intentionally never copied.
+COPY pyproject.toml /tmp/langgraph-jboss-agent/pyproject.toml
+COPY src /tmp/langgraph-jboss-agent/src
+RUN cd /tmp/langgraph-jboss-agent \
     && pip install --upgrade pip \
-    && pip install -e ".[dev]"
+    && pip install '.[dev]' \
+    && rm -rf /tmp/langgraph-jboss-agent
+
+EXPOSE 8501
 
 WORKDIR /workspace
-
 CMD ["bash"]
