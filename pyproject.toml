@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langgraph-jboss-agent"
+version = "0.1.0"
+description = "Learning project for LangGraph, MCP, HITL, and JBoss incident response"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "langgraph>=1.1.5,<2",
+  "langchain>=1,<2",
+  "langchain-google-genai>=4,<5",
+  "langchain-mcp-adapters",
+  "mcp[cli]",
+  "streamlit>=1.45",
+  "httpx>=0.28",
+  "pydantic>=2.10",
+  "pydantic-settings>=2.7",
+  "python-dotenv>=1.0",
+  "apscheduler>=3.11,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.25",
+  "ruff>=0.11",
+  "mypy>=1.15",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
