@@ -1,6 +1,8 @@
-# LangGraph JBoss Incident Response Agent — Starter Pack
+# LangGraph JBoss Incident Response Agent — STEP 0〜5 実装版
 
 このリポジトリは、LangGraph を「実際に動く題材」で学ぶためのスターターパックです。
+
+**現在は `LEARNING_ROADMAP.md` の STEP 0〜5 まで実装済みです。** STEP 1/2 と STEP 3/4/5 の学習用 Graph を残しているため、段階ごとの差分を比較できます。
 
 目的は JBoss EAP の運用自動化製品を完成させることではなく、次の要素を一つの題材で体系的に学ぶことです。
 
@@ -353,3 +355,119 @@ make test
 
 STEP 2 の Graph test は FakeClassifier を dependency injection し、Gemini API を呼びません。
 これにより Graph のルーティングテストと LLM の実通信を分離しています。
+
+---
+
+## STEP 3 — Monitoring / Cursor（実装済み）
+
+Fake JBoss の `server.log` を byte cursor で差分読みします。
+
+```text
+START -> collect_logs
+              |
+              +-- no delta -> no_new_logs -> END
+              |
+              +-- delta -> analyze_logs(Gemini) -> category branch -> END
+```
+
+実行:
+
+```bash
+make step3
+```
+
+重要なのは、ログに変化がない回は Gemini を呼ばないことです。
+
+---
+
+## STEP 4 — Local Tool: Teams（実装済み）
+
+Teams 通知をローカル LangChain Tool として実装しています。
+
+```text
+Gemini
+  -> tool_calls: send_teams_alert
+  -> tools_condition
+  -> ToolNode
+  -> local Python Tool
+  -> ToolMessage
+  -> Gemini
+```
+
+デフォルト:
+
+```env
+TEAMS_DRY_RUN=true
+```
+
+なので Webhook URL がなくても試せます。
+
+```bash
+make step4
+```
+
+実送信する場合のみ:
+
+```env
+TEAMS_DRY_RUN=false
+TEAMS_WEBHOOK_URL=https://...
+```
+
+---
+
+## STEP 5 — MCP Read Tools（実装済み）
+
+Fake JBoss を stdio MCP Server として別プロセスで起動し、`langchain-mcp-adapters` で read-only Tool を取得します。
+
+```text
+LangGraph
+  -> ToolNode
+  -> LangChain MCP Tool
+  -> stdio
+  -> Fake JBoss MCP Server
+  -> Fake JBoss file-backed state
+```
+
+実行:
+
+```bash
+make step5
+```
+
+MCP Inspector を使いたい場合:
+
+```bash
+make mcp-dev
+```
+
+STEP 5 で公開するのは read-only Tool だけです。
+
+```text
+read_server_log
+get_server_health
+get_thread_pool_status
+get_datasource_status
+get_deployment_status
+get_recent_config_changes
+```
+
+write Tool と `execute_jboss_cli` / `execute_shell` はまだ作っていません。
+
+詳しい比較は:
+
+```text
+docs/STEP3_STEP4_STEP5_GUIDE.md
+```
+
+を参照してください。
+
+### STEP 3〜5 一括確認
+
+```bash
+make test
+make step3
+make step4
+make step5
+```
+
+STEP 3 / STEP 4 は Gemini API を利用します。STEP 5 は Gemini API を使わず、MCP 接続だけを確認します。

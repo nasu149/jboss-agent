@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     jboss_mode: Literal["fake", "real"] = Field(default="fake", alias="JBOSS_MODE")
     jboss_mcp_transport: str = Field(default="stdio", alias="JBOSS_MCP_TRANSPORT")
+    fake_jboss_data_dir: str = Field(
+        default=".data/fake_jboss",
+        alias="FAKE_JBOSS_DATA_DIR",
+    )
 
     checkpoint_backend: str = Field(default="memory", alias="CHECKPOINT_BACKEND")
     checkpoint_db_path: str = Field(
@@ -85,7 +89,14 @@ class Settings(BaseSettings):
             return None
         return value
 
-    @field_validator("gemini_model", "server_id", "app_env", "log_level")
+    @field_validator(
+        "gemini_model",
+        "server_id",
+        "app_env",
+        "log_level",
+        "jboss_mcp_transport",
+        "fake_jboss_data_dir",
+    )
     @classmethod
     def non_blank_text(cls, value: str) -> str:
         value = value.strip()

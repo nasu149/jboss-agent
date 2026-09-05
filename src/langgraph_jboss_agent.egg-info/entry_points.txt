@@ -1,2 +1,4 @@
 [console_scripts]
 jboss-agent-gemini-ping = jboss_agent.cli.gemini_ping:main
+jboss-agent-step1 = jboss_agent.cli.step1:main
+jboss-agent-step2 = jboss_agent.cli.step2:main

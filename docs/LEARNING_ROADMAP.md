@@ -81,7 +81,7 @@ Conditional Edge で分岐。
 
 ---
 
-## STEP 3 — Monitoring / Cursor
+## STEP 3 — Monitoring / Cursor（実装済み）
 
 ### 作るもの
 
@@ -95,7 +95,7 @@ Fake server.log を用意し、前回 cursor 以降だけ読む。
 
 ---
 
-## STEP 4 — Local Tool: Teams
+## STEP 4 — Local Tool: Teams（実装済み）
 
 ### 作るもの
 
@@ -118,7 +118,7 @@ Fake server.log を用意し、前回 cursor 以降だけ読む。
 
 ---
 
-## STEP 5 — MCP Read Tools
+## STEP 5 — MCP Read Tools（実装済み）
 
 ### 作るもの
 
