@@ -58,7 +58,7 @@ class Settings(BaseSettings):
         alias="FAKE_JBOSS_DATA_DIR",
     )
 
-    checkpoint_backend: str = Field(default="memory", alias="CHECKPOINT_BACKEND")
+    checkpoint_backend: Literal["memory", "sqlite"] = Field(default="memory", alias="CHECKPOINT_BACKEND")
     checkpoint_db_path: str = Field(
         default=".data/checkpoints.sqlite",
         alias="CHECKPOINT_DB_PATH",

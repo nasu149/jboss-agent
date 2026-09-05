@@ -1,4 +1,4 @@
-"""Small learning status page through STEP 5.
+"""Small learning status page through STEP 9.
 
 The operational dashboard remains intentionally deferred until STEP 11.
 """
@@ -14,8 +14,8 @@ settings = get_settings()
 
 st.set_page_config(page_title="LangGraph JBoss Agent", page_icon="🧭", layout="centered")
 st.title("LangGraph JBoss Incident Response Agent")
-st.subheader("STEP 0–5 — Core / Routing / Cursor / Local Tool / MCP")
-st.success("Learning implementation is complete through STEP 5.")
+st.subheader("STEP 0–9 — Core / Tools / MCP / Agent / HITL / Recovery")
+st.success("Learning implementation is complete through STEP 9.")
 
 st.markdown(
     """
@@ -28,10 +28,15 @@ make step2
 make step3
 make step4
 make step5
+make step6
+make step7
+make step8
+make step9
 ```
 
 - `docs/STEP1_STEP2_GUIDE.md`
 - `docs/STEP3_STEP4_STEP5_GUIDE.md`
+- `docs/STEP6_STEP7_STEP8_STEP9_GUIDE.md`
 """
 )
 

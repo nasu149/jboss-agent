@@ -135,7 +135,7 @@ read-only Tool を提供する。
 
 ---
 
-## STEP 6 — Agentic Investigation
+## STEP 6 — Agentic Investigation（実装済み）
 
 ### 作るもの
 
@@ -158,7 +158,7 @@ get_recent_config_changes
 
 ---
 
-## STEP 7 — Human-in-the-loop
+## STEP 7 — Human-in-the-loop（実装済み）
 
 ### 作るもの
 
@@ -175,7 +175,7 @@ get_recent_config_changes
 
 ---
 
-## STEP 8 — MCP Write Tools
+## STEP 8 — MCP Write Tools（実装済み）
 
 ### 作るもの
 
@@ -189,7 +189,7 @@ get_recent_config_changes
 
 ---
 
-## STEP 9 — Recovery Loop
+## STEP 9 — Recovery Loop（実装済み）
 
 ### 作るもの
 

@@ -9,6 +9,7 @@ description = "Learning project for LangGraph, MCP, HITL, and JBoss incident res
 requires-python = ">=3.12,<3.14"
 dependencies = [
   "langgraph>=1.1.5,<2",
+  "langgraph-checkpoint-sqlite>=3,<4",
   "langchain>=1,<2",
   "langchain-google-genai>=4,<5",
   "langchain-mcp-adapters==0.3.2",
@@ -30,6 +31,10 @@ jboss-agent-step2 = "jboss_agent.cli.step2:main"
 jboss-agent-step3 = "jboss_agent.cli.step3:main"
 jboss-agent-step4 = "jboss_agent.cli.step4:main"
 jboss-agent-step5 = "jboss_agent.cli.step5:main"
+jboss-agent-step6 = "jboss_agent.cli.step6:main"
+jboss-agent-step7 = "jboss_agent.cli.step7:main"
+jboss-agent-step8 = "jboss_agent.cli.step8:main"
+jboss-agent-step9 = "jboss_agent.cli.step9:main"
 jboss-agent-fake-mcp = "jboss_agent.mcp_server.fake_jboss_server:main"
 
 [project.optional-dependencies]
@@ -50,3 +55,4 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+ignore = ["EXE002"]  # 実行権限があるのにシバンがない警告を無視

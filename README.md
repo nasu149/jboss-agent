@@ -1,8 +1,8 @@
-# LangGraph JBoss Incident Response Agent — STEP 0〜5 実装版
+# LangGraph JBoss Incident Response Agent — STEP 0〜9 実装版
 
 このリポジトリは、LangGraph を「実際に動く題材」で学ぶためのスターターパックです。
 
-**現在は `LEARNING_ROADMAP.md` の STEP 0〜5 まで実装済みです。** STEP 1/2 と STEP 3/4/5 の学習用 Graph を残しているため、段階ごとの差分を比較できます。
+**現在は `LEARNING_ROADMAP.md` の STEP 0〜9 まで実装済みです。** 各 STEP の学習用 Graph を残しているため、段階ごとの差分を比較できます。
 
 目的は JBoss EAP の運用自動化製品を完成させることではなく、次の要素を一つの題材で体系的に学ぶことです。
 
@@ -440,7 +440,7 @@ MCP Inspector を使いたい場合:
 make mcp-dev
 ```
 
-STEP 5 で公開するのは read-only Tool だけです。
+STEP 8 まで進んだ現在、MCP Server 自体は read/write の両 capability を公開します。ただし STEP 5/6 のクライアントは **read-only subset だけをフィルタして取得**するため、調査Agentに write Tool は見えません。
 
 ```text
 read_server_log
@@ -451,7 +451,7 @@ get_deployment_status
 get_recent_config_changes
 ```
 
-write Tool と `execute_jboss_cli` / `execute_shell` はまだ作っていません。
+`execute_jboss_cli` / `execute_shell` のような任意実行 Tool は STEP 9 時点でも作っていません。
 
 詳しい比較は:
 
@@ -471,3 +471,159 @@ make step5
 ```
 
 STEP 3 / STEP 4 は Gemini API を利用します。STEP 5 は Gemini API を使わず、MCP 接続だけを確認します。
+
+
+---
+
+## STEP 6 — Agentic Investigation（実装済み）
+
+ここで初めて、LLM が **次にどの read-only MCP Tool を使うか**を選びます。
+
+```text
+START
+  -> prepare_investigation
+  -> investigate (Gemini + read-only tools)
+       | tool_calls
+       v
+     ToolNode(read MCP tools)
+       -> record_tool_evidence
+       -> investigate
+       |
+       | no tool call / investigation limit
+       v
+     diagnose (Structured Output)
+  -> END
+```
+
+実行:
+
+```bash
+make step6
+```
+
+重要な境界:
+
+```text
+Gemini: 何を追加調査するか決める
+LangGraph: Tool loop と最大調査回数を管理する
+MCP: JBoss の read capability を提供する
+Python: write Tool を investigation model に渡さない
+```
+
+---
+
+## STEP 7 — Human-in-the-loop（実装済み）
+
+対処案を通常 Python の Risk Policy で検証した後、write 操作前に `interrupt()` します。
+
+```text
+validate_proposed_action
+  -> BLOCKED -> END
+  -> approval interrupt
+       ↓ same thread_id
+Command(resume={...})
+       ↓
+approved / rejected / edited+approved
+```
+
+通常デモ:
+
+```bash
+make step7
+```
+
+SQLite で「別プロセスから同じ thread_id を再開」を確認する場合:
+
+```bash
+make step7-pause
+make step7-resume
+```
+
+`step7-pause` は pending approval のままプロセスを終了します。`step7-resume` は同じ `incident:step7-durable-demo` を SQLite から復元して再開します。
+
+> `interrupt()` より前のコードは resume 時に再実行されます。そのため approval Node の interrupt 前には HTTP POST や write Tool などの副作用を置いていません。
+
+---
+
+## STEP 8 — MCP Write Tools（実装済み）
+
+承認済み Action を Python が明示的な write MCP Tool に変換します。
+
+```text
+approval_status=APPROVED
+  -> validate again
+  -> prepare_write_call (Python)
+  -> ToolNode(write MCP tools)
+  -> capture_write_result
+  -> END
+```
+
+実行:
+
+```bash
+make step8
+```
+
+公開 capability:
+
+```text
+set_thread_pool_max_threads      1..200
+set_datasource_max_pool_size     1..200
+restart_deployment
+reload_server
+```
+
+**Gemini に write Tool を自由選択させない**のがポイントです。
+
+---
+
+## STEP 9 — Recovery Loop（実装済み）
+
+STEP 6〜8 を1本の Incident Response Graph に接続し、変更後に read-only MCP Tool で復旧確認します。
+
+```text
+investigate
+  -> diagnose
+  -> risk policy
+  -> interrupt approval
+  -> write MCP
+  -> verify recovery
+       | Recovered
+       +-----------> END
+       |
+       | Not recovered
+       v
+  prepare_retry
+       -> investigate
+
+MAX_RECOVERY_ATTEMPTS 到達
+       -> fail_safe -> END
+```
+
+実行:
+
+```bash
+make step9
+```
+
+CLI デモでは approval payload を表示した後、自動で approve して続きを流します。UI で人がボタンを押す実装は STEP 11 です。
+
+詳しいコード対応と State の変化は:
+
+```text
+docs/STEP6_STEP7_STEP8_STEP9_GUIDE.md
+```
+
+を参照してください。
+
+### STEP 6〜9 一括確認
+
+```bash
+make test
+make step6
+make step7
+make step8
+make step9
+```
+
+この時点で Incident Response 側は、**自律調査 / HITL / write capability / 復旧ループ**まで揃っています。次の STEP 10 は Graph の外から定期起動する Scheduler です。

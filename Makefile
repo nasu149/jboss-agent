@@ -1,4 +1,4 @@
-.PHONY: install test lint typecheck check gemini-ping step1 step2 step3 step4 step5 mcp-dev app
+.PHONY: install test lint typecheck check gemini-ping step1 step2 step3 step4 step5 step6 step7 step8 step9 step7-pause step7-resume mcp-dev app
 
 install:
 	pip install -e '.[dev]'
@@ -32,6 +32,25 @@ step4:
 
 step5:
 	python -m jboss_agent.cli.step5
+
+step6:
+	python -m jboss_agent.cli.step6
+
+step7:
+	python -m jboss_agent.cli.step7
+
+step8:
+	python -m jboss_agent.cli.step8
+
+step9:
+	python -m jboss_agent.cli.step9
+
+STEP7_THREAD_ID ?= incident:step7-durable-demo
+step7-pause:
+	CHECKPOINT_BACKEND=sqlite python -m jboss_agent.cli.step7 --pause-only --thread-id $(STEP7_THREAD_ID)
+
+step7-resume:
+	CHECKPOINT_BACKEND=sqlite python -m jboss_agent.cli.step7 --resume-only --thread-id $(STEP7_THREAD_ID) --decision approve
 
 mcp-dev:
 	mcp dev src/jboss_agent/mcp_server/fake_jboss_server.py

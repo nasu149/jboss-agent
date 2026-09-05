@@ -11,3 +11,4 @@
 - Microsoft Teams Incoming Webhooks / Workflows: https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook
 - MCP Python SDK v2 notes: https://github.com/modelcontextprotocol/python-sdk/blob/main/docs/whats-new.md
 - langchain-mcp-adapters PyPI: https://pypi.org/project/langchain-mcp-adapters/
+- LangGraph SQLite Checkpointer: https://reference.langchain.com/python/langgraph/checkpoint/sqlite
